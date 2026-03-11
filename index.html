@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{
+background:#111;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+margin:0;
+}
+canvas{
+border:3px solid white;
+background:black;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="tetris" width="240" height="400"></canvas>
+
+<script>
+
+const canvas=document.getElementById("tetris");
+const ctx=canvas.getContext("2d");
+ctx.scale(20,20);
+
+function createMatrix(w,h){
+const m=[];
+while(h--)m.push(new Array(w).fill(0));
+return m;
+}
+
+const arena=createMatrix(12,20);
+
+const pieces=[
+[[1,1,1],[0,1,0]],
+[[2,2],[2,2]],
+[[0,3,3],[3,3,0]],
+[[4,4,0],[0,4,4]],
+[[5,5,5,5]]
+];
+
+let player={x:5,y:0,matrix:pieces[0]};
+
+function draw(){
+ctx.fillStyle="#000";
+ctx.fillRect(0,0,canvas.width,canvas.height);
+
+player.matrix.forEach((row,y)=>{
+row.forEach((v,x)=>{
+if(v){
+ctx.fillStyle="cyan";
+ctx.fillRect(player.x+x,player.y+y,1,1);
+}
+});
+});
+}
+
+function update(){
+player.y+=0.02;
+draw();
+requestAnimationFrame(update);
+}
+
+let touchStartX=0;
+let touchStartY=0;
+
+canvas.addEventListener("touchstart",e=>{
+touchStartX=e.touches[0].clientX;
+touchStartY=e.touches[0].clientY;
+});
+
+canvas.addEventListener("touchend",e=>{
+const dx=e.changedTouches[0].clientX-touchStartX;
+const dy=e.changedTouches[0].clientY-touchStartY;
+
+if(Math.abs(dx)>Math.abs(dy)){
+player.x+=dx>0?1:-1;
+}else{
+player.y+=1;
+}
+});
+
+canvas.addEventListener("click",()=>{
+player.matrix.reverse();
+});
+
+update();
+
+</script>
+
+</body>
+</html>

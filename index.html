@@ -2,94 +2,226 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tetris</title>
+
 <style>
 body{
 background:#111;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-margin:0;
+color:white;
+text-align:center;
+font-family:Arial;
 }
+
 canvas{
-border:3px solid white;
 background:black;
+border:3px solid white;
+}
+
+#controls{
+margin-top:10px;
+}
+
+button{
+font-size:20px;
+margin:5px;
+padding:10px 15px;
 }
 </style>
 </head>
 
 <body>
 
-<canvas id="tetris" width="240" height="400"></canvas>
+<h2>Tetris</h2>
+<p>Score: <span id="score">0</span></p>
+
+<canvas id="game" width="240" height="400"></canvas>
+
+<div id="controls">
+<button onclick="move(-1)">⬅️</button>
+<button onclick="rotate()">🔄</button>
+<button onclick="move(1)">➡️</button>
+<button onclick="drop()">⬇️</button>
+<button onclick="restart()">Restart</button>
+</div>
 
 <script>
 
-const canvas=document.getElementById("tetris");
-const ctx=canvas.getContext("2d");
-ctx.scale(20,20);
+const canvas = document.getElementById("game")
+const ctx = canvas.getContext("2d")
+ctx.scale(20,20)
 
-function createMatrix(w,h){
-const m=[];
-while(h--)m.push(new Array(w).fill(0));
-return m;
-}
+const arena = createMatrix(12,20)
 
-const arena=createMatrix(12,20);
+const colors = [
+null,
+'#ff595e',
+'#ffca3a',
+'#8ac926',
+'#1982c4',
+'#6a4c93'
+]
 
-const pieces=[
+const pieces = [
 [[1,1,1],[0,1,0]],
 [[2,2],[2,2]],
 [[0,3,3],[3,3,0]],
 [[4,4,0],[0,4,4]],
 [[5,5,5,5]]
-];
+]
 
-let player={x:5,y:0,matrix:pieces[0]};
+let player = {
+pos:{x:0,y:0},
+matrix:null,
+score:0
+}
+
+function createMatrix(w,h){
+const m=[]
+while(h--) m.push(new Array(w).fill(0))
+return m
+}
+
+function drawMatrix(matrix,offset){
+matrix.forEach((row,y)=>{
+row.forEach((value,x)=>{
+if(value!==0){
+ctx.fillStyle=colors[value]
+ctx.fillRect(x+offset.x,y+offset.y,1,1)
+}
+})
+})
+}
 
 function draw(){
-ctx.fillStyle="#000";
-ctx.fillRect(0,0,canvas.width,canvas.height);
+ctx.fillStyle="#000"
+ctx.fillRect(0,0,canvas.width,canvas.height)
+drawMatrix(arena,{x:0,y:0})
+drawMatrix(player.matrix,player.pos)
+}
 
+function merge(){
 player.matrix.forEach((row,y)=>{
-row.forEach((v,x)=>{
-if(v){
-ctx.fillStyle="cyan";
-ctx.fillRect(player.x+x,player.y+y,1,1);
+row.forEach((value,x)=>{
+if(value!==0){
+arena[y+player.pos.y][x+player.pos.x]=value
 }
-});
-});
-}
-
-function update(){
-player.y+=0.02;
-draw();
-requestAnimationFrame(update);
+})
+})
 }
 
-let touchStartX=0;
-let touchStartY=0;
-
-canvas.addEventListener("touchstart",e=>{
-touchStartX=e.touches[0].clientX;
-touchStartY=e.touches[0].clientY;
-});
-
-canvas.addEventListener("touchend",e=>{
-const dx=e.changedTouches[0].clientX-touchStartX;
-const dy=e.changedTouches[0].clientY-touchStartY;
-
-if(Math.abs(dx)>Math.abs(dy)){
-player.x+=dx>0?1:-1;
-}else{
-player.y+=1;
+function collide(){
+const m=player.matrix
+const o=player.pos
+for(let y=0;y<m.length;y++){
+for(let x=0;x<m[y].length;x++){
+if(m[y][x]!==0 &&
+(arena[y+o.y] && arena[y+o.y][x+o.x])!==0){
+return true
 }
-});
+}
+}
+return false
+}
 
-canvas.addEventListener("click",()=>{
-player.matrix.reverse();
-});
+function playerReset(){
+player.matrix = pieces[Math.floor(Math.random()*pieces.length)]
+player.pos.y=0
+player.pos.x=(arena[0].length/2|0)-(player.matrix[0].length/2|0)
 
-update();
+if(collide()){
+arena.forEach(row=>row.fill(0))
+player.score=0
+updateScore()
+}
+}
+
+function arenaSweep(){
+let rowCount=1
+outer: for(let y=arena.length-1;y>=0;y--){
+for(let x=0;x<arena[y].length;x++){
+if(arena[y][x]===0) continue outer
+}
+const row=arena.splice(y,1)[0].fill(0)
+arena.unshift(row)
+y++
+player.score+=rowCount*10
+rowCount*=2
+}
+updateScore()
+}
+
+function move(dir){
+player.pos.x+=dir
+if(collide()) player.pos.x-=dir
+}
+
+function rotate(){
+const m=player.matrix
+for(let y=0;y<m.length;y++){
+for(let x=0;x<y;x++){
+[m[x][y],m[y][x]]=[m[y][x],m[x][y]]
+}
+}
+m.forEach(row=>row.reverse())
+
+if(collide()) rotateBack()
+}
+
+function rotateBack(){
+rotate()
+rotate()
+rotate()
+}
+
+function drop(){
+player.pos.y++
+if(collide()){
+player.pos.y--
+merge()
+arenaSweep()
+playerReset()
+}
+dropCounter=0
+}
+
+function updateScore(){
+document.getElementById("score").innerText=player.score
+}
+
+let dropCounter=0
+let dropInterval=800
+let lastTime=0
+
+function update(time=0){
+const delta=time-lastTime
+lastTime=time
+dropCounter+=delta
+
+if(dropCounter>dropInterval){
+drop()
+}
+
+draw()
+requestAnimationFrame(update)
+}
+
+function restart(){
+arena.forEach(row=>row.fill(0))
+player.score=0
+updateScore()
+playerReset()
+}
+
+document.addEventListener("keydown",event=>{
+if(event.key==="ArrowLeft") move(-1)
+if(event.key==="ArrowRight") move(1)
+if(event.key==="ArrowDown") drop()
+if(event.key==="ArrowUp") rotate()
+})
+
+playerReset()
+updateScore()
+update()
 
 </script>
 

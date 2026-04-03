@@ -105,22 +105,24 @@ button:active {
 
 <canvas id="game" width="240" height="400"></canvas>
 
-<div id="controls">
-  <div class="control-group">
-    <button class="btn-lg" onclick="move(-1)">⬅️</button>
-    <button class="btn-lg" onclick="move(1)">➡️</button>
-    <div style="width: 100%"><button class="btn-lg" onclick="drop()">⬇️</button></div>
+<div id="controls-container">
+  <div class="dpad">
+    <div class="dpad-row">
+       <button class="btn-ctrl" onpointerdown="startMove(-1)" onpointerup="stopMove()">⬅️</button>
+       <button class="btn-ctrl" onpointerdown="startMove(1)" onpointerup="stopMove()">➡️</button>
+    </div>
+    <button class="btn-ctrl btn-down" onpointerdown="startDrop()" onpointerup="stopDrop()">⬇️</button>
   </div>
 
-  <div class="control-group">
+  <div class="actions">
     <button class="btn-round" onclick="rotate()">🔄</button>
-    <button class="btn-round" onclick="hardDrop()">⚡</button>
+    <button class="btn-round btn-hard" onclick="hardDrop()">⚡</button>
   </div>
-  
-  <div class="system-controls">
-    <button class="btn-sm" onclick="togglePause()" id="pauseBtn">⏸️</button>
-    <button class="btn-sm" onclick="restart()">Restart</button>
-  </div>
+</div>
+
+<div class="system-bar">
+  <button class="btn-sm" onclick="togglePause()" id="pauseBtn">⏸️</button>
+  <button class="btn-sm" onclick="restart()">Restart</button>
 </div>
 
 <script>

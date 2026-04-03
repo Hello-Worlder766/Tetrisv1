@@ -105,24 +105,19 @@ button:active {
 
 <canvas id="game" width="240" height="400"></canvas>
 
-<div id="controls-container">
-  <div class="dpad">
-    <div class="dpad-row">
-       <button class="btn-ctrl" onpointerdown="startMove(-1)" onpointerup="stopMove()">⬅️</button>
-       <button class="btn-ctrl" onpointerdown="startMove(1)" onpointerup="stopMove()">➡️</button>
-    </div>
-    <button class="btn-ctrl btn-down" onpointerdown="startDrop()" onpointerup="stopDrop()">⬇️</button>
+<div id="controls">
+  <div class="main-controls">
+    <button class="btn-game" onclick="move(-1)">⬅️</button>
+    <button class="btn-game" onclick="move(1)">➡️</button>
+    <button class="btn-game" onclick="drop()">⬇️</button>
+    <button class="btn-game btn-rotate" onclick="rotate()">🔄</button>
+    <button class="btn-game btn-power" onclick="hardDrop()">⚡</button>
   </div>
 
-  <div class="actions">
-    <button class="btn-round" onclick="rotate()">🔄</button>
-    <button class="btn-round btn-hard" onclick="hardDrop()">⚡</button>
+  <div class="system-controls">
+    <button class="btn-sys" onclick="togglePause()" id="pauseBtn">⏸️</button>
+    <button class="btn-sys" onclick="restart()">Restart</button>
   </div>
-</div>
-
-<div class="system-bar">
-  <button class="btn-sm" onclick="togglePause()" id="pauseBtn">⏸️</button>
-  <button class="btn-sm" onclick="restart()">Restart</button>
 </div>
 
 <script>

@@ -31,16 +31,68 @@ display:block;
 margin:0 auto;
 }
 
-#controls{
-margin-top:10px;
+#controls {
+  margin-top: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  width: 100%;
+  max-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-bottom: 20px;
 }
 
-button{
-font-size:22px;
-margin:5px;
-padding:12px 18px;
-touch-action:manipulation;
--webkit-tap-highlight-color: transparent;
+.control-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 45%;
+}
+
+button {
+  background: #333;
+  border: 2px solid #555;
+  color: white;
+  border-radius: 8px;
+  font-family: Arial;
+  font-weight: bold;
+  touch-action: manipulation;
+}
+
+button:active {
+  background: #666;
+  transform: scale(0.92);
+}
+
+.btn-lg {
+  font-size: 28px;
+  padding: 15px 25px;
+  margin: 4px;
+}
+
+.btn-round {
+  font-size: 28px;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  margin: 4px;
+  background: #444;
+  border-color: #888;
+}
+
+.system-controls {
+  width: 100%;
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn-sm {
+  font-size: 14px;
+  padding: 8px 15px;
+  background: #222;
 }
 
 </style>
@@ -54,12 +106,21 @@ touch-action:manipulation;
 <canvas id="game" width="240" height="400"></canvas>
 
 <div id="controls">
-<button onclick="move(-1)">⬅️</button>
-<button onclick="rotate()">🔄</button>
-<button onclick="move(1)">➡️</button>
-<button onclick="drop()">⬇️</button>
-<button onclick="togglePause()" id="pauseBtn">⏸️</button>
-<button onclick="restart()">Restart</button>
+  <div class="control-group">
+    <button class="btn-lg" onclick="move(-1)">⬅️</button>
+    <button class="btn-lg" onclick="move(1)">➡️</button>
+    <div style="width: 100%"><button class="btn-lg" onclick="drop()">⬇️</button></div>
+  </div>
+
+  <div class="control-group">
+    <button class="btn-round" onclick="rotate()">🔄</button>
+    <button class="btn-round" onclick="hardDrop()">⚡</button>
+  </div>
+  
+  <div class="system-controls">
+    <button class="btn-sm" onclick="togglePause()" id="pauseBtn">⏸️</button>
+    <button class="btn-sm" onclick="restart()">Restart</button>
+  </div>
 </div>
 
 <script>
